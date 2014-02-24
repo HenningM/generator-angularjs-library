@@ -36,15 +36,11 @@ gulp.task('scripts', function(){
 
 gulp.task('lint', function() {
   gulp.src(scriptLint)
-    .pipe(jshint())
-    .pipe(jshint.reporter('jshint-stylish'));
+    .pipe(jshint());
 });
 
 gulp.task('watch', ['connect'], function(){
-  gulp.watch(scriptSrc, function(event){
-    util.log(util.colors.magenta(event.path), 'was', util.colors.cyan(event.type) + ', running tasks...');
-    gulp.run('scripts');
-  });
+  gulp.watch(scriptSrc, ['scripts']);
 });
 
 gulp.task('connect', function(){
