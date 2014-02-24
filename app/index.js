@@ -94,22 +94,34 @@ AngularjsLibraryGenerator.prototype.askFor = function askFor() {
             default: true
         },
         {
-            type: 'confirm',
-            name: 'includeAngularModuleResource',
-            message: 'Would you like to include the angular-resource module?',
-            default: true
+            type: "list",
+            name: "taskRunner",
+            message: "Which task runner do you want to use?",
+            choices: [{
+                name: 'Grunt',
+                value: 'grunt',
+            }, {
+                name: 'Gulp',
+                value: 'gulp',
+            }]
         },
         {
-            type: 'confirm',
-            name: 'includeAngularModuleCookies',
-            message: 'Would you like to include the angular-cookies module?',
-            default: true
-        },
-        {
-            type: 'confirm',
-            name: 'includeAngularModuleSanitize',
-            message: 'Would you like to include the angular-sanitize module?',
-            default: true
+            type: 'checkbox',
+            name: 'features',
+            message: 'What more would you like?',
+            choices: [{
+                name: 'angular-resource',
+                value: 'angular-resource',
+                checked: true
+            }, {
+                name: 'angular-cookies',
+                value: 'angular-cookies',
+                checked: true
+            }, {
+                name: 'angular-sanitize',
+                value: 'angular-sanitize',
+                checked: true
+            }]
         }
     ];
 
@@ -121,6 +133,8 @@ AngularjsLibraryGenerator.prototype.askFor = function askFor() {
                 name: props.authorName,
                 email: props.authorEmail
             },
+
+            taskRunner: props.taskRunner,
 
             // Originally a humanized string like "Project Angular_Library"
             libraryName: {
@@ -140,12 +154,12 @@ AngularjsLibraryGenerator.prototype.askFor = function askFor() {
                 // Array of parts => [ 'project', 'angular', 'library' ]
                 parts: this._.slugify(props.libraryName).split('-')
             },
-            includeModuleDirectives : props.includeModuleDirectives,
-            includeModuleFilters : props.includeModuleFilters,
-            includeModuleServices : props.includeModuleServices,
-            includeAngularModuleResource : props.includeAngularModuleResource,
-            includeAngularModuleCookies : props.includeAngularModuleCookies,
-            includeAngularModuleSanitize : props.includeAngularModuleSanitize
+            includeModuleDirectives: props.includeModuleDirectives,
+            includeModuleFilters: props.includeModuleFilters,
+            includeModuleServices: props.includeModuleServices,
+            includeAngularModuleResource: props.features.indexOf('angular-resource') !== -1,
+            includeAngularModuleCookies: props.features.indexOf('angular-cookies') !== -1,
+            includeAngularModuleSanitize: props.features.indexOf('angular-sanitize') !== -1
         };
 
         this.config.librarySrcDirectory = 'src' + '/' + this.config.libraryName.camelized;
@@ -192,10 +206,14 @@ AngularjsLibraryGenerator.prototype.createLibraryFiles = function createLibraryF
 };
 
 /**
- * Create Grunt configuration
+ * Create task runner configuration
  */
-AngularjsLibraryGenerator.prototype.createGruntfile = function createGruntfile() {
-    this.template('Gruntfile.js', './Gruntfile.js', {config: this.config});
+AngularjsLibraryGenerator.prototype.createTaskRunnerConfig = function createGruntfile() {
+    if (this.config.taskRunner === 'grunt') {
+        this.template('Gruntfile.js', './Gruntfile.js', {config: this.config});
+    } else {
+        this.template('gulpfile.js', './gulpfile.js', {config: this.config});
+    }
 };
 
 /**
